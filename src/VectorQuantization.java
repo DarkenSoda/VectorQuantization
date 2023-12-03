@@ -91,10 +91,9 @@ public class VectorQuantization {
         Vector<Integer> averageMinusOne = new Vector<>();
         for (int i = 0; i < average.size(); i++) {
             averagePlusOne.add(average.get(i)+1);
-        }
-        for (int i = 0; i < average.size(); i++) {
             averageMinusOne.add(average.get(i)-1);
         }
+       
 
         for (int i = 0; i < vectorOfBooks.size(); i++) {
             if (EcludianDistance(vectorOfBooks.get(i), averagePlusOne) < EcludianDistance(vectorOfBooks.get(i), averageMinusOne)) {
