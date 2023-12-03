@@ -63,7 +63,7 @@ public class VectorQuantization {
             int min=Integer.MAX_VALUE;
             int index=0;
             for (int i=0;i<codeBook.size();i++) {
-                int distance=EcludianDistance(vector, codeBook.get(i), 0);
+                int distance=EcludianDistance(vector, codeBook.get(i));
                 if(distance<min){
                     min=distance;
                     index=i;
@@ -87,9 +87,17 @@ public class VectorQuantization {
         Vector<Integer> average = AverageOfVectors(vectorOfBooks);
         Vector<Vector<Integer>> LeftVectors = new Vector<>();
         Vector<Vector<Integer>> RightVectors = new Vector<>();
+        Vector<Integer> averagePlusOne = new Vector<>();
+        Vector<Integer> averageMinusOne = new Vector<>();
+        for (int i = 0; i < average.size(); i++) {
+            averagePlusOne.add(average.get(i)+1);
+        }
+        for (int i = 0; i < average.size(); i++) {
+            averageMinusOne.add(average.get(i)-1);
+        }
+
         for (int i = 0; i < vectorOfBooks.size(); i++) {
-            if (EcludianDistance(vectorOfBooks.get(i), average, 1) < EcludianDistance(vectorOfBooks.get(i), average,
-                    -1)) {
+            if (EcludianDistance(vectorOfBooks.get(i), averagePlusOne) < EcludianDistance(vectorOfBooks.get(i), averageMinusOne)) {
                 RightVectors.add(vectorOfBooks.get(i));
             } else {
                 LeftVectors.add(vectorOfBooks.get(i));
@@ -124,10 +132,10 @@ public class VectorQuantization {
 
     }
 
-    private static int EcludianDistance(Vector<Integer> x, Vector<Integer> y, int factor) {
+    private static int EcludianDistance(Vector<Integer> x, Vector<Integer> y) {
         int distance = 0;
         for (int i = 0; i < x.size(); i++) {
-            distance += Math.pow(x.get(i) - y.get(i) + factor, 2);
+            distance += Math.pow(x.get(i) - y.get(i), 2);
         }
         distance = (int) Math.sqrt(distance);
         return distance;
