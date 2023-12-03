@@ -2,17 +2,17 @@ import java.awt.image.BufferedImage;
 import java.util.Vector;
 
 public class VectorQuantization {
-    public static void Compress(BufferedImage image, int codeBookSize, int vectorHeight, int vectorWidth) {
-        int[][] originalImage = RWCompression.ReadImage(image);
-        int originalHeight = RWCompression.height;
-        int originalWidth = RWCompression.width;
-        int scaledHeight = originalHeight;
-        int scaledWidth = originalWidth;
-        boolean scaled = false;
-        // padding
-        if (originalHeight % vectorHeight != 0) {
-            scaled = true;
-            scaledHeight = ((originalHeight / vectorHeight) + 1) * vectorHeight;
+    public static void Compress(BufferedImage image,int codeBookSize,int vectorHeight,int vectorWidth){
+        int[][] originalImage=RWCompression.ReadImage(image);
+        int originalHeight=RWCompression.height;
+        int originalWidth=RWCompression.width;
+        int scaledHeight=originalHeight;
+        int scaledWidth=originalWidth;
+        boolean scaled=false;
+        //padding
+        if(originalHeight%vectorHeight!=0){
+            scaled=true;
+            scaledHeight=((originalHeight / vectorHeight) + 1) * vectorHeight;
         }
         if (originalWidth % vectorWidth == 0) {
             scaled = true;
@@ -47,8 +47,32 @@ public class VectorQuantization {
             }
 
         }
-        Vector<Vector<Integer>> codeBook = new Vector<>();
-        Quantize(vectorOfBooks, codeBook, codeBookSize);
+        Vector<Vector<Integer>>codeBook=new Vector<>();
+        Quantize(vectorOfBooks,codeBook,codeBookSize);
+        
+        //compress
+        Vector<Integer>compressedVectors=SubstituteOriginal(codeBook, vectorOfBooks);
+
+
+        //items to write in file CompressedVectors,codebook,originalHeight,originalWidth,scaledHeight,ScaledWidth,VectorWidth,VectorHeight
+
+    }
+    private static Vector<Integer> SubstituteOriginal(Vector<Vector<Integer>>codeBook,Vector<Vector<Integer>>vectorOfBooks){
+        Vector<Integer>compressedVectors=new Vector<>();
+        for (Vector<Integer> vector : vectorOfBooks) {
+            int min=Integer.MAX_VALUE;
+            int index=0;
+            for (int i=0;i<codeBook.size();i++) {
+                int distance=EcludianDistance(vector, codeBook.get(i), 0);
+                if(distance<min){
+                    min=distance;
+                    index=i;
+                }
+            }
+            compressedVectors.add(index);
+            
+        }
+        return compressedVectors;
     }
 
     private static void Quantize(Vector<Vector<Integer>> vectorOfBooks, Vector<Vector<Integer>> quantizedVector,
