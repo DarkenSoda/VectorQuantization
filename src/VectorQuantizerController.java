@@ -1,3 +1,4 @@
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -56,6 +57,9 @@ public class VectorQuantizerController {
     // #region FXML Functions
     @FXML
     void onCompress(ActionEvent event) {
+        if (originalImage.getImage() == null)
+            return;
+
         int codeBookSize, blockLength, blockWidth;
         try {
             codeBookSize = Integer.parseInt(codeBookSizeText.getText());
@@ -67,6 +71,8 @@ public class VectorQuantizerController {
         }
 
         // Compress originalImage and save as bin file
+        BufferedImage image = SwingFXUtils.fromFXImage(originalImage.getImage(), null);
+        VectorQuantization.Compress(image, codeBookSize, blockLength, blockWidth);
     }
 
     @FXML
@@ -78,7 +84,7 @@ public class VectorQuantizerController {
     @FXML
     void onSaveImage(ActionEvent event) {
         // Save decompressedImage.jpg
-        if (decompressedImage == null)
+        if (decompressedImage.getImage() == null)
             return;
 
         FileChooser fileChooser = new FileChooser();
