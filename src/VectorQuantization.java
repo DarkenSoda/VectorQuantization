@@ -6,11 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
-
-import javax.imageio.ImageIO;
 
 public class VectorQuantization {
     public static void Compress(BufferedImage image, int codeBookSize, int vectorHeight, int vectorWidth,

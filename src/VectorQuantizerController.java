@@ -1,3 +1,4 @@
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -105,7 +106,7 @@ public class VectorQuantizerController {
             return;
 
         FileChooser fileChooser = new FileChooser();
-        FileChooser.ExtensionFilter textFilter = new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jgp",
+        FileChooser.ExtensionFilter textFilter = new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png",
                 "*.jpeg");
         fileChooser.getExtensionFilters().add(textFilter);
         fileChooser.setTitle("Save Image");
@@ -117,8 +118,17 @@ public class VectorQuantizerController {
         Image imageToBeSaved = decompressedImage.getImage();
         try {
             String extension = getFileExtension(file);
-            BufferedImage image = SwingFXUtils.fromFXImage(imageToBeSaved, null);
-            ImageIO.write(image, "png", file);
+
+            BufferedImage image = new BufferedImage((int) imageToBeSaved.getWidth(), (int) imageToBeSaved.getHeight(),
+                    BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2d = image.createGraphics();
+            g2d.setColor(java.awt.Color.WHITE);
+            g2d.fillRect(0, 0, image.getWidth(), image.getHeight());
+            g2d.drawImage(SwingFXUtils.fromFXImage(imageToBeSaved, null), 0, 0, null);
+            g2d.dispose();
+
+            ImageIO.write(image, extension.isEmpty() ? "jpg" : extension,
+                    file);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -166,10 +176,11 @@ public class VectorQuantizerController {
 
     private String getFileExtension(File file) {
         String name = file.getName();
-        int lastIndexOf = name.lastIndexOf(".");
-        if (lastIndexOf == -1) {
-            return ""; // empty extension
+        int i = name.lastIndexOf('.');
+        if (i > 0) {
+            return name.substring(i + 1);
         }
-        return name.substring(lastIndexOf);
+
+        return "";
     }
 }
