@@ -12,7 +12,7 @@ import java.util.Vector;
 public class VectorQuantization {
     public static void Compress(BufferedImage image, int codeBookSize, int vectorHeight, int vectorWidth,
             File outputFile) {
-        int[][] originalImage = RWCompression.ReadImage(image);
+        int[][][] originalImage = RWCompression.ReadImage(image);
         int originalHeight = RWCompression.height;
         int originalWidth = RWCompression.width;
         int scaledHeight = originalHeight;
@@ -27,10 +27,10 @@ public class VectorQuantization {
             scaled = true;
             scaledWidth = ((originalWidth / vectorWidth) + 1) * vectorWidth;
         }
-        int[][] scaledImage;
+        int[][][] scaledImage;
         // fill the padding
         if (scaled) {
-            scaledImage = new int[scaledHeight][scaledWidth];
+            scaledImage = new int[scaledHeight][scaledWidth][3];
             for (int i = 0; i < scaledHeight; i++) {
                 int x = i >= originalHeight ? originalHeight - 1 : i;
                 for (int j = 0; j < scaledWidth; j++) {
@@ -48,7 +48,9 @@ public class VectorQuantization {
                 Vector<Integer> vector = new Vector<>();
                 for (int k = i; k < vectorHeight + i && k < scaledHeight; k++) {
                     for (int l = j; l < vectorWidth + j && l < scaledWidth; l++) {
-                        vector.add(scaledImage[k][l]);
+                        vector.add(scaledImage[k][l][0]);
+                        vector.add(scaledImage[k][l][1]);
+                        vector.add(scaledImage[k][l][2]);
                     }
                 }
                 vectorOfBooks.add(vector);
@@ -201,16 +203,18 @@ public class VectorQuantization {
                 codeBook.add(row);
             }
 
-            int[][] decompressedImage = new int[scaledHeight][scaledWidth];
+            int[][][] decompressedImage = new int[scaledHeight][scaledWidth][3];
             for (int i = 0; i < compressedVectorSize; i++) {
                 int x = i / (scaledWidth / vectorWidth);
                 int y = i % (scaledWidth / vectorWidth);
                 x *= vectorHeight;
                 y *= vectorWidth;
-                int v = 0;
                 for (int j = x; j < x + vectorHeight; j++) {
                     for (int k = y; k < y + vectorWidth; k++) {
-                        decompressedImage[j][k] = codeBook.get(compressedVectors.get(i)).get(v++);
+                        List<Integer> rgbValues = codeBook.get(compressedVectors.get(i));
+                        decompressedImage[j][k][0] = rgbValues.get(0);
+                        decompressedImage[j][k][1] = rgbValues.get(1);
+                        decompressedImage[j][k][2] = rgbValues.get(2);
                     }
                 }
             }
@@ -218,9 +222,9 @@ public class VectorQuantization {
             BufferedImage image = new BufferedImage(originalWidth, originalHeight, BufferedImage.TYPE_INT_RGB);
             for (int i = 0; i < originalHeight; i++) {
                 for (int j = 0; j < originalWidth; j++) {
-                    int value = 0xff000000 | (decompressedImage[i][j] << 16) | (decompressedImage[i][j] << 8)
-                            | (decompressedImage[i][j]);
-                    image.setRGB(j, i, value);
+                    int rgb = decompressedImage[i][j][0] << 16 | decompressedImage[i][j][1] << 8
+                            | decompressedImage[i][j][2];
+                    image.setRGB(j, i, rgb);
                 }
             }
             return image;
