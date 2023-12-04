@@ -7,8 +7,6 @@ public class RWCompression {
     public static int[][] ReadImage(BufferedImage image) {
         height = image.getHeight();
         width = image.getWidth();
-        System.out.println(height);
-        System.out.println(width);
         int[][] imagePixels = new int[height][width];
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {

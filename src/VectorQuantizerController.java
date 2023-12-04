@@ -70,15 +70,32 @@ public class VectorQuantizerController {
             return;
         }
 
+        FileChooser fileChooser = new FileChooser();
+        FileChooser.ExtensionFilter textFilter = new FileChooser.ExtensionFilter("Binary Files", "*.bin");
+        fileChooser.getExtensionFilters().add(textFilter);
+        fileChooser.setTitle("Save Compressed Binary File");
+
+        File file = fileChooser.showSaveDialog(null);
+        if (file == null)
+            return;
+
         // Compress originalImage and save as bin file
         BufferedImage image = SwingFXUtils.fromFXImage(originalImage.getImage(), null);
-        VectorQuantization.Compress(image, codeBookSize, blockLength, blockWidth);
+        VectorQuantization.Compress(image, codeBookSize, blockLength, blockWidth, file);
     }
 
     @FXML
     void onDecompress(ActionEvent event) {
         // Decompress fileToDecompress.bin
+        if (fileToDecompress == null)
+            return;
+
+        BufferedImage image = VectorQuantization.Decompress(fileToDecompress);
+        if (image == null)
+            return;
+
         // Show result in decompressedImage
+        decompressedImage.setImage(SwingFXUtils.toFXImage(image, null));
     }
 
     @FXML
@@ -100,8 +117,8 @@ public class VectorQuantizerController {
         Image imageToBeSaved = decompressedImage.getImage();
         try {
             String extension = getFileExtension(file);
-            ImageIO.write(SwingFXUtils.fromFXImage(imageToBeSaved, null), extension.isEmpty() ? ".jpg" : extension,
-                    file);
+            BufferedImage image = SwingFXUtils.fromFXImage(imageToBeSaved, null);
+            ImageIO.write(image, "png", file);
         } catch (IOException e) {
             e.printStackTrace();
         }
